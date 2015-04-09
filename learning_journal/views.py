@@ -6,6 +6,7 @@ from sqlalchemy.exc import DBAPIError
 from .models import (
     DBSession,
     MyModel,
+    Entry,
     )
 
 
@@ -16,6 +17,15 @@ def my_view(request):
     except DBAPIError:
         return Response(conn_err_msg, content_type='text/plain', status_int=500)
     return {'one': one, 'project': 'learning_journal'}
+
+@view_config(route_name='entries', renderer='templates/entries.pt')
+def entries_view(request):
+    try:
+        all_entries = DBSession.query(Entry).all()
+        request_id = DBSession.query(Entry).filter(Entry.id == 'request_id').first()
+    except DBAPIError:
+        return Response(conn_err_msg, content_type='text/plain', status_int=500)
+    return {'all_entries': all_entries,'request_id':request_id , 'project': 'learning_journal'}
 
 
 conn_err_msg = """\
